@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>সেমিস্টার ফাইনাল রুটিন — Sagor</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0b22">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="রুটিন">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0b22;
+    --bg-mid:#161235;
+    --violet:#8b5cf6;
+    --violet-2:#c084fc;
+    --cyan:#22d3ee;
+    --gold:#fbbf24;
+    --sun-1:#fb923c;
+    --sun-2:#fbbf24;
+    --moon-1:#6d28d9;
+    --moon-2:#3b82f6;
+    --exam-1:#f43f5e;
+    --exam-2:#fb7185;
+    --card-bg:rgba(255,255,255,0.045);
+    --card-border:rgba(255,255,255,0.09);
+    --text-hi:#f5f3ff;
+    --text-lo:#a5a3c4;
+    --radius:22px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    background:
+      radial-gradient(1100px 700px at 15% -5%, rgba(139,92,246,0.35), transparent 60%),
+      radial-gradient(900px 600px at 100% 10%, rgba(34,211,238,0.18), transparent 55%),
+      linear-gradient(180deg, var(--bg-deep), var(--bg-mid) 40%, #0d0a26 100%);
+    color:var(--text-hi);
+    font-family:'Hind Siliguri','Space Grotesk',sans-serif;
+    overflow-x:hidden;
+    min-height:100%;
+  }
+  .num{font-family:'Space Grotesk',sans-serif;}
+
+  .symbol-field{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0; perspective:900px;}
+  .symbol{position:absolute; font-family:'Space Grotesk',serif; color:rgba(255,255,255,0.10); animation:drift linear infinite; will-change:transform;}
+  @keyframes drift{0%{transform:translateY(0) translateX(0);} 50%{transform:translateY(-40px) translateX(18px);} 100%{transform:translateY(0) translateX(0);}}
+  @keyframes spin3d{0%{transform:rotateY(0deg) rotateX(0deg);} 100%{transform:rotateY(360deg) rotateX(360deg);}}
+  .symbol-inner{display:inline-block; animation:spin3d 14s linear infinite;}
+
+  main{position:relative; z-index:1; max-width:640px; margin:0 auto; padding:38px 18px 70px;}
+
+  .hero{text-align:center; margin-bottom:30px; opacity:0; animation:riseIn .9s ease forwards;}
+  .eyebrow-badge{display:inline-flex; align-items:center; gap:8px; background:linear-gradient(90deg, rgba(139,92,246,0.25), rgba(34,211,238,0.2)); border:1px solid rgba(255,255,255,0.15); border-radius:999px; padding:7px 16px; font-size:13px; color:var(--cyan); margin-bottom:18px;}
+  h1{font-size:clamp(30px,8vw,44px); line-height:1.15; font-weight:700; background:linear-gradient(120deg,#ffffff 20%, var(--violet-2) 55%, var(--cyan) 90%); -webkit-background-clip:text; background-clip:text; color:transparent; margin-bottom:12px;}
+  .hero p{color:var(--text-lo); font-size:15.5px; max-width:440px; margin:0 auto;}
+
+  /* clock + countdown row */
+  .clock-row{display:flex; flex-wrap:wrap; gap:16px; justify-content:center; align-items:stretch; margin-top:28px;}
+  .clock-card, .countdown-card{
+    border-radius:20px; border:1px solid var(--card-border); background:rgba(255,255,255,0.04);
+    backdrop-filter:blur(6px); padding:18px 20px; display:flex; flex-direction:column; align-items:center;
+  }
+  .clock-card .lbl, .countdown-card .lbl{font-size:12px; color:var(--text-lo); margin-top:10px;}
+  .clock-face{position:relative; width:132px; height:132px;}
+  .clock-svg{width:100%; height:100%; filter:drop-shadow(0 0 10px rgba(139,92,246,0.35));}
+  .hand{transform-origin:60px 60px; stroke-linecap:round;}
+  .digital-time{margin-top:6px; font-size:13px; color:var(--text-lo); letter-spacing:.5px;}
+  .cd-grid{display:flex; gap:10px;}
+  .cd-unit{display:flex; flex-direction:column; align-items:center; min-width:52px;}
+  .cd-unit .v{font-size:24px; font-weight:700; color:var(--gold);}
+  .cd-unit .u{font-size:10.5px; color:var(--text-lo); margin-top:2px;}
+  .exam-clock-row{margin-top:8px; margin-bottom:6px;}
+  .exam-clock-card{border-color:rgba(244,63,94,0.35);}
+  .exam-countdown-card .v{color:var(--exam-2);}
+  .exam-countdown-card{border-color:rgba(244,63,94,0.35);}
+
+  /* notification settings card */
+  .notif-card{
+    margin-top:22px; border-radius:20px; border:1px solid var(--card-border); background:rgba(255,255,255,0.04);
+    backdrop-filter:blur(6px); padding:18px 20px; text-align:left; max-width:420px; margin-left:auto; margin-right:auto;
+  }
+  .notif-title{font-size:15px; font-weight:600; margin-bottom:14px; text-align:center;}
+  .notif-row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px;}
+  .notif-row label{font-size:13.5px; color:var(--text-lo);}
+  .notif-row input[type="time"]{
+    background:rgba(255,255,255,0.06); border:1px solid var(--card-border); border-radius:10px;
+    color:var(--text-hi); padding:7px 10px; font-family:inherit; font-size:14px;
+  }
+  .notif-btn{
+    width:100%; margin-top:6px; padding:11px; border:none; border-radius:12px; cursor:pointer;
+    background:linear-gradient(120deg, var(--violet), var(--cyan)); color:#0a0b22; font-weight:700; font-size:14px;
+  }
+  .notif-btn:active{transform:scale(0.98);}
+  .notif-status{text-align:center; font-size:12.5px; color:var(--text-lo); margin-top:10px;}
+  .notif-status.on{color:#34d399;}
+  .notif-note{font-size:11px; color:var(--text-lo); opacity:.75; margin-top:12px; line-height:1.5; text-align:center;}
+
+  .phases{display:flex; flex-direction:column; gap:12px; margin-bottom:36px; margin-top:34px;}
+  .phase{display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:16px; border:1px solid var(--card-border); background:var(--card-bg); opacity:0; animation:riseIn .7s ease forwards;}
+  .phase-dot{width:12px; height:12px; border-radius:50%; flex-shrink:0; box-shadow:0 0 14px currentColor;}
+  .phase-text b{display:block; font-size:14.5px; font-weight:600;}
+  .phase-text span{font-size:12.5px; color:var(--text-lo);}
+
+  .section-label{display:flex; align-items:center; gap:12px; margin:38px 0 16px; opacity:0; animation:riseIn .7s ease forwards;}
+  .section-label .line{flex:1; height:1px; background:linear-gradient(90deg, rgba(255,255,255,0.18), transparent);}
+  .section-label span{font-size:14px; color:var(--text-lo); white-space:nowrap;}
+
+  .timeline{position:relative; display:flex; flex-direction:column; gap:16px;}
+  .day-card{position:relative; border-radius:var(--radius); border:1px solid var(--card-border); background:var(--card-bg); backdrop-filter:blur(8px); padding:16px; display:flex; gap:14px; align-items:stretch; opacity:0; transform:translateY(22px); animation:riseIn .7s ease forwards; transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease; transform-style:preserve-3d;}
+  .day-card.tilt{box-shadow:0 18px 40px -12px rgba(139,92,246,0.35); border-color:rgba(255,255,255,0.22);}
+  .day-card.exam-day{border-color:rgba(244,63,94,0.5); box-shadow:0 0 0 1px rgba(244,63,94,0.25) inset;}
+  .date-col{display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:64px; padding-right:12px; border-right:1px solid rgba(255,255,255,0.08);}
+  .date-col .d{font-size:30px; font-weight:700; line-height:1;}
+  .date-col .m{font-size:11.5px; color:var(--text-lo); margin-top:3px;}
+  .date-col .wd{font-size:11px; color:var(--cyan); margin-top:6px; text-align:center;}
+  .slots{flex:1; display:flex; flex-direction:column; gap:8px; justify-content:center;}
+  .slot{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:13px; font-size:14px; font-weight:500;}
+  .slot .ic{font-size:17px; flex-shrink:0;}
+  .slot .lbl{color:rgba(255,255,255,0.65); font-size:11.5px; min-width:34px;}
+  .slot.day{background:linear-gradient(90deg, rgba(251,146,60,0.18), rgba(251,191,36,0.09));}
+  .slot.night{background:linear-gradient(90deg, rgba(109,40,217,0.28), rgba(59,130,246,0.12));}
+  .slot.exam{background:linear-gradient(90deg, rgba(244,63,94,0.3), rgba(251,113,133,0.14)); border:1px solid rgba(244,63,94,0.4);}
+  .exam-banner{flex:1; display:flex; flex-direction:column; gap:4px; justify-content:center; padding:10px 12px; border-radius:13px; background:linear-gradient(90deg, rgba(244,63,94,0.28), rgba(251,113,133,0.12)); border:1px solid rgba(244,63,94,0.4);}
+  .exam-banner .tag{font-size:11px; letter-spacing:.5px; color:var(--exam-2); font-weight:600;}
+  .exam-banner .subj{font-size:14.5px; font-weight:600;}
+  .exam-banner .note{font-size:12px; color:var(--text-lo);}
+
+  .outro{margin-top:44px; text-align:center; padding:24px 18px; border-radius:20px; border:1px solid var(--card-border); background:var(--card-bg); opacity:0; animation:riseIn .8s ease forwards;}
+  .outro b{background:linear-gradient(90deg, var(--gold), var(--sun-1)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .outro p{color:var(--text-lo); font-size:13.5px; margin-top:8px; line-height:1.6;}
+
+  @keyframes riseIn{ to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001s !important; animation-iteration-count:1 !important;}}
+</style>
+</head>
+<body>
+
+<div class="symbol-field" id="symbolField"></div>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow-badge">🎯 Semester Final Prep</div>
+    <h1>তোমার এক্সাম রুটিন,<br>ফুল ফোকাস মোডে</h1>
+    <p>৯ – ২৫ সেপ্টেম্বর — Mathematical Lab, PDE, Abstract Algebra, Calculus 3 আর সব এক্সাম ডেট, দিন-রাত ভাগ করে সাজানো।</p>
+
+    <div class="clock-row">
+      <div class="clock-card">
+        <div class="clock-face">
+          <svg class="clock-svg" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="56" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+            <g id="ticks"></g>
+            <line id="hourHand" class="hand" x1="60" y1="60" x2="60" y2="34" stroke="#f5f3ff" stroke-width="4"/>
+            <line id="minHand" class="hand" x1="60" y1="60" x2="60" y2="22" stroke="#c084fc" stroke-width="3"/>
+            <line id="secHand" class="hand" x1="60" y1="60" x2="60" y2="18" stroke="#22d3ee" stroke-width="1.5"/>
+            <circle cx="60" cy="60" r="3.5" fill="#fbbf24"/>
+          </svg>
+        </div>
+        <div class="digital-time" id="digitalTime">--:--:--</div>
+        <div class="lbl">লাইভ সময়</div>
+      </div>
+
+      <div class="countdown-card">
+        <div class="cd-grid">
+          <div class="cd-unit"><div class="v" id="cdD">--</div><div class="u">দিন</div></div>
+          <div class="cd-unit"><div class="v" id="cdH">--</div><div class="u">ঘণ্টা</div></div>
+          <div class="cd-unit"><div class="v" id="cdM">--</div><div class="u">মিনিট</div></div>
+          <div class="cd-unit"><div class="v" id="cdS">--</div><div class="u">সেকেন্ড</div></div>
+        </div>
+        <div class="lbl">পড়া শুরু হতে বাকি (৯ সেপ্টেম্বর)</div>
+      </div>
+    </div>
+
+    <div class="notif-card" id="notifCard">
+      <div class="notif-title">🔔 পড়ার নোটিফিকেশন</div>
+      <div class="notif-row">
+        <label for="dayTime">দিনের সময়</label>
+        <input type="time" id="dayTime" value="09:00">
+      </div>
+      <div class="notif-row">
+        <label for="nightTime">রাতের সময়</label>
+        <input type="time" id="nightTime" value="20:00">
+      </div>
+      <button id="notifBtn" class="notif-btn">নোটিফিকেশন চালু করো</button>
+      <div class="notif-status" id="notifStatus">এখনো বন্ধ আছে</div>
+      <div class="notif-note">অ্যাপটা ফোনে ইনস্টল করে (হোম স্ক্রিনে অ্যাড করে) খোলা বা ব্যাকগ্রাউন্ডে রাখলে এই নোটিফিকেশন কাজ করবে — Android Chrome এ সবচেয়ে ভালো কাজ করে। iPhone এ Safari থেকে "Add to Home Screen" করে নিতে হবে।</div>
+    </div>
+  </section>
+
+  <div class="phases">
+    <div class="phase" style="animation-delay:.05s">
+      <div class="phase-dot" style="color:#fb923c; background:#fb923c;"></div>
+      <div class="phase-text"><b>৯ – ১৭ সেপ্টেম্বর</b><span>দিন: Mathematical Lab &nbsp;•&nbsp; রাত: PDE</span></div>
+    </div>
+    <div class="phase" style="animation-delay:.15s">
+      <div class="phase-dot" style="color:#c084fc; background:#c084fc;"></div>
+      <div class="phase-text"><b>১৮ – ২৫ সেপ্টেম্বর</b><span>দিন: Abstract Algebra &nbsp;•&nbsp; রাত: Calculus 3</span></div>
+    </div>
+    <div class="phase" style="animation-delay:.25s">
+      <div class="phase-dot" style="color:#f43f5e; background:#f43f5e;"></div>
+      <div class="phase-text"><b>এক্সাম ডেট: ১১, ১৫, ১৭(রাত), ২২, ২৫</b><span>নিচের টাইমলাইনে লাল বক্সে হাইলাইট করা আছে</span></div>
+    </div>
+  </div>
+
+  <div class="section-label" style="animation-delay:.28s"><span>পরবর্তী এক্সাম কাউন্টডাউন</span><div class="line"></div></div>
+
+  <div class="clock-row exam-clock-row">
+    <div class="clock-card exam-clock-card">
+      <div class="clock-face">
+        <svg class="clock-svg" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="56" fill="rgba(244,63,94,0.06)" stroke="rgba(244,63,94,0.35)" stroke-width="2"/>
+          <g id="ticks2"></g>
+          <line id="hourHand2" class="hand" x1="60" y1="60" x2="60" y2="34" stroke="#f5f3ff" stroke-width="4"/>
+          <line id="minHand2" class="hand" x1="60" y1="60" x2="60" y2="22" stroke="#fb7185" stroke-width="3"/>
+          <line id="secHand2" class="hand" x1="60" y1="60" x2="60" y2="18" stroke="#fbbf24" stroke-width="1.5"/>
+          <circle cx="60" cy="60" r="3.5" fill="#fbbf24"/>
+        </svg>
+      </div>
+      <div class="digital-time" id="digitalTime2">--:--:--</div>
+      <div class="lbl">লাইভ সময়</div>
+    </div>
+
+    <div class="countdown-card exam-countdown-card">
+      <div class="cd-grid">
+        <div class="cd-unit"><div class="v" id="examCdD">--</div><div class="u">দিন</div></div>
+        <div class="cd-unit"><div class="v" id="examCdH">--</div><div class="u">ঘণ্টা</div></div>
+        <div class="cd-unit"><div class="v" id="examCdM">--</div><div class="u">মিনিট</div></div>
+        <div class="cd-unit"><div class="v" id="examCdS">--</div><div class="u">সেকেন্ড</div></div>
+      </div>
+      <div class="lbl" id="examCdLabel">পরবর্তী এক্সাম পর্যন্ত বাকি</div>
+    </div>
+  </div>
+
+  <div class="section-label" style="animation-delay:.3s"><span>দৈনিক রুটিন</span><div class="line"></div></div>
+
+  <div class="timeline" id="timeline"></div>
+
+  <div class="outro" style="animation-delay:.4s">
+    <b>১৭ দিনের প্ল্যান। একটা একটা করে দিন শেষ করো।</b>
+    <p>দিনে এক subject, রাতে আরেকটা — আর যেদিন এক্সাম, সেদিন লাল বক্স দেখলেই বুঝবে ওইদিন পড়ার চাপ না নিয়ে রিভিশনে ফোকাস করতে হবে। Best of luck, Sagor! 🚀</p>
+  </div>
+</main>
+
+<script>
+// floating math symbols
+const symbols = ['∫','Σ','∂','√','π','∞','λ','θ','∇','≈','Δ','⨍'];
+const field = document.getElementById('symbolField');
+for(let i=0;i<16;i++){
+  const s = document.createElement('div');
+  s.className = 'symbol';
+  const size = 20 + Math.random()*38;
+  s.style.fontSize = size+'px';
+  s.style.left = Math.random()*100+'%';
+  s.style.top = Math.random()*100+'%';
+  s.style.animationDuration = (8+Math.random()*10)+'s';
+  s.style.animationDelay = (-Math.random()*10)+'s';
+  const inner = document.createElement('span');
+  inner.className='symbol-inner';
+  inner.textContent = symbols[i % symbols.length];
+  inner.style.animationDuration = (10+Math.random()*8)+'s';
+  s.appendChild(inner);
+  field.appendChild(s);
+}
+
+// analog clock ticks
+const ticksG = document.getElementById('ticks');
+for(let i=0;i<12;i++){
+  const angle = i*30*Math.PI/180;
+  const x1 = 60 + 50*Math.sin(angle), y1 = 60 - 50*Math.cos(angle);
+  const x2 = 60 + 44*Math.sin(angle), y2 = 60 - 44*Math.cos(angle);
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+  line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+  line.setAttribute('stroke','rgba(255,255,255,0.35)');
+  line.setAttribute('stroke-width','2');
+  ticksG.appendChild(line);
+}
+const hourHand = document.getElementById('hourHand');
+const minHand = document.getElementById('minHand');
+const secHand = document.getElementById('secHand');
+const digitalTime = document.getElementById('digitalTime');
+
+function pad(n){ return n.toString().padStart(2,'0'); }
+
+function tickClock(){
+  const now = new Date();
+  const h = now.getHours()%12, m = now.getMinutes(), s = now.getSeconds();
+  hourHand.setAttribute('transform', `rotate(${h*30 + m*0.5}, 60, 60)`);
+  minHand.setAttribute('transform', `rotate(${m*6 + s*0.1}, 60, 60)`);
+  secHand.setAttribute('transform', `rotate(${s*6}, 60, 60)`);
+  digitalTime.textContent = `${pad(now.getHours())}:${pad(m)}:${pad(s)}`;
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+// second analog clock (exam section) — mirrors live time
+const ticksG2 = document.getElementById('ticks2');
+for(let i=0;i<12;i++){
+  const angle = i*30*Math.PI/180;
+  const x1 = 60 + 50*Math.sin(angle), y1 = 60 - 50*Math.cos(angle);
+  const x2 = 60 + 44*Math.sin(angle), y2 = 60 - 44*Math.cos(angle);
+  const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+  line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+  line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+  line.setAttribute('stroke','rgba(255,255,255,0.35)');
+  line.setAttribute('stroke-width','2');
+  ticksG2.appendChild(line);
+}
+const hourHand2 = document.getElementById('hourHand2');
+const minHand2 = document.getElementById('minHand2');
+const secHand2 = document.getElementById('secHand2');
+const digitalTime2 = document.getElementById('digitalTime2');
+
+function tickClock2(){
+  const now = new Date();
+  const h = now.getHours()%12, m = now.getMinutes(), s = now.getSeconds();
+  hourHand2.setAttribute('transform', `rotate(${h*30 + m*0.5}, 60, 60)`);
+  minHand2.setAttribute('transform', `rotate(${m*6 + s*0.1}, 60, 60)`);
+  secHand2.setAttribute('transform', `rotate(${s*6}, 60, 60)`);
+  digitalTime2.textContent = `${pad(now.getHours())}:${pad(m)}:${pad(s)}`;
+}
+tickClock2();
+setInterval(tickClock2, 1000);
+
+// exam dates (assumed exam start 10:00 AM on each date) — auto-picks nearest upcoming one
+const examDates = [
+  {d:11, hour:10, subj:'Mathematical (যতটুকু শেষ)'},
+  {d:15, hour:10, subj:'Mathematical Method (বাকিটুকু)'},
+  {d:17, hour:19, subj:'Mathematical Method (রাতে, ফুল)'},
+  {d:22, hour:10, subj:'Abstract + Calculus 3 (যতটুকু শেষ)'},
+  {d:25, hour:10, subj:'Abstract + Calculus 3 (বাকিটুকু)'},
+];
+function nextExam(){
+  const now = new Date();
+  for(const ex of examDates){
+    const t = new Date(2026,8,ex.d,ex.hour,0,0);
+    if(t > now) return {time:t, subj:ex.subj};
+  }
+  return null;
+}
+function tickExamCountdown(){
+  const examCdD = document.getElementById('examCdD'), examCdH = document.getElementById('examCdH'),
+        examCdM = document.getElementById('examCdM'), examCdS = document.getElementById('examCdS'),
+        examCdLabel = document.getElementById('examCdLabel');
+  const ex = nextExam();
+  if(!ex){
+    examCdD.textContent='০'; examCdH.textContent='০'; examCdM.textContent='০'; examCdS.textContent='০';
+    examCdLabel.textContent = 'সব এক্সাম শেষ! 🎉';
+    return;
+  }
+  let diff = ex.time - new Date();
+  const d = Math.floor(diff/(1000*60*60*24)); diff -= d*(1000*60*60*24);
+  const h = Math.floor(diff/(1000*60*60)); diff -= h*(1000*60*60);
+  const m = Math.floor(diff/(1000*60)); diff -= m*(1000*60);
+  const sec = Math.floor(diff/1000);
+  examCdD.textContent = d; examCdH.textContent = pad(h); examCdM.textContent = pad(m); examCdS.textContent = pad(sec);
+  examCdLabel.textContent = `পরবর্তী এক্সাম (${ex.subj}) পর্যন্ত বাকি`;
+}
+tickExamCountdown();
+setInterval(tickExamCountdown, 1000);
+
+// live D:H:M:S countdown to Sept 9, 2026 00:00:00
+const target = new Date(2026,8,9,0,0,0);
+function tickCountdown(){
+  const now = new Date();
+  let diff = target - now;
+  const cdD = document.getElementById('cdD'), cdH = document.getElementById('cdH'),
+        cdM = document.getElementById('cdM'), cdS = document.getElementById('cdS');
+  if(diff <= 0){
+    cdD.textContent='０'; cdH.textContent='০'; cdM.textContent='০'; cdS.textContent='０';
+    return;
+  }
+  const d = Math.floor(diff/(1000*60*60*24)); diff -= d*(1000*60*60*24);
+  const h = Math.floor(diff/(1000*60*60)); diff -= h*(1000*60*60);
+  const m = Math.floor(diff/(1000*60)); diff -= m*(1000*60);
+  const sec = Math.floor(diff/1000);
+  cdD.textContent = d; cdH.textContent = pad(h); cdM.textContent = pad(m); cdS.textContent = pad(sec);
+}
+tickCountdown();
+setInterval(tickCountdown, 1000);
+
+// schedule data (8 - 25 September 2026)
+const months = {9:'সেপ্টেম্বর'};
+const weekdays = ['রবিবার','সোমবার','মঙ্গলবার','বুধবার','বৃহস্পতিবার','শুক্রবার','শনিবার'];
+
+// base day/night per date, plus optional exam overrides
+const schedule = [
+  {d:9,  day:'Mathematical Lab', night:'PDE'},
+  {d:10, day:'Mathematical Lab', night:'PDE'},
+  {d:11, day:'Mathematical Lab', night:'PDE', examBanner:{subj:'Mathematical', note:'যতটুকু সিলেবাস শেষ হবে, ততটুকুর উপর পরীক্ষা'}},
+  {d:12, day:'Mathematical Lab', night:'PDE'},
+  {d:13, day:'Mathematical Lab', night:'PDE'},
+  {d:14, day:'Mathematical Lab', night:'PDE'},
+  {d:15, day:'Mathematical Lab', night:'PDE', examBanner:{subj:'Mathematical Method', note:'বাকি অংশের উপর পরীক্ষা'}},
+  {d:16, day:'Mathematical Lab', night:'PDE'},
+  {d:17, day:'Mathematical Lab', night:'PDE', examNight:{subj:'Mathematical Method', note:'সম্পূর্ণ পরীক্ষা (রাতে)'}},
+  {d:18, day:'Abstract Algebra', night:'Calculus 3'},
+  {d:19, day:'Abstract Algebra', night:'Calculus 3'},
+  {d:20, day:'Abstract Algebra', night:'Calculus 3'},
+  {d:21, day:'Abstract Algebra', night:'Calculus 3'},
+  {d:22, day:'Abstract Algebra', night:'Calculus 3', examBanner:{subj:'Abstract Algebra + Calculus 3', note:'যতটুকু শেষ হবে, ততটুকুর উপর পরীক্ষা'}},
+  {d:23, day:'Abstract Algebra', night:'Calculus 3'},
+  {d:24, day:'Abstract Algebra', night:'Calculus 3'},
+  {d:25, day:'Abstract Algebra', night:'Calculus 3', examBanner:{subj:'Abstract Algebra + Calculus 3', note:'বাকি অংশের উপর পরীক্ষা'}},
+];
+
+const timeline = document.getElementById('timeline');
+schedule.forEach((row, idx) => {
+  const dt = new Date(2026, 8, row.d);
+  const wd = weekdays[dt.getDay()];
+  const card = document.createElement('div');
+  card.className = 'day-card' + (row.examBanner || row.examNight ? ' exam-day' : '');
+  card.style.animationDelay = (0.42 + idx*0.045) + 's';
+
+  let slotsHTML = '';
+  if(row.examBanner){
+    slotsHTML = `
+      <div class="exam-banner">
+        <span class="tag">🔔 এক্সাম</span>
+        <span class="subj">${row.examBanner.subj}</span>
+        <span class="note">${row.examBanner.note}</span>
+      </div>`;
+  } else {
+    const nightSlot = row.examNight
+      ? `<div class="slot exam"><span class="ic">🔔</span><span class="lbl">রাত</span><span>${row.examNight.subj} — ${row.examNight.note}</span></div>`
+      : `<div class="slot night"><span class="ic">🌙</span><span class="lbl">রাত</span><span>${row.night}</span></div>`;
+    slotsHTML = `
+      <div class="slot day"><span class="ic">☀️</span><span class="lbl">দিন</span><span>${row.day}</span></div>
+      ${nightSlot}`;
+  }
+
+  card.innerHTML = `
+    <div class="date-col">
+      <div class="d num">${row.d}</div>
+      <div class="m">${months[9]}</div>
+      <div class="wd">${wd}</div>
+    </div>
+    <div class="slots">${slotsHTML}</div>
+  `;
+  card.addEventListener('pointerenter', () => card.classList.add('tilt'));
+  card.addEventListener('pointerleave', () => { card.classList.remove('tilt'); card.style.transform=''; });
+  card.addEventListener('pointermove', (e) => {
+    const r = card.getBoundingClientRect();
+    const px = (e.clientX - r.left)/r.width - 0.5;
+    const py = (e.clientY - r.top)/r.height - 0.5;
+    card.style.transform = `translateY(0) rotateX(${(-py*6).toFixed(2)}deg) rotateY(${(px*6).toFixed(2)}deg)`;
+  });
+  timeline.appendChild(card);
+});
+
+// ---------- Notification settings ----------
+const dayTimeInput = document.getElementById('dayTime');
+const nightTimeInput = document.getElementById('nightTime');
+const notifBtn = document.getElementById('notifBtn');
+const notifStatus = document.getElementById('notifStatus');
+
+const savedDayTime = localStorage.getItem('routine_dayTime');
+const savedNightTime = localStorage.getItem('routine_nightTime');
+if(savedDayTime) dayTimeInput.value = savedDayTime;
+if(savedNightTime) nightTimeInput.value = savedNightTime;
+
+let swRegistration = null;
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./service-worker.js')
+    .then(reg => { swRegistration = reg; })
+    .catch(() => {});
+}
+
+function updateStatusUI(){
+  const enabled = localStorage.getItem('routine_notif_enabled') === 'yes';
+  if(enabled && Notification.permission === 'granted'){
+    notifStatus.textContent = `চালু আছে ✓ (দিন ${dayTimeInput.value}, রাত ${nightTimeInput.value})`;
+    notifStatus.classList.add('on');
+    notifBtn.textContent = 'সময় আপডেট করো';
+  } else {
+    notifStatus.textContent = 'এখনো বন্ধ আছে';
+    notifStatus.classList.remove('on');
+    notifBtn.textContent = 'নোটিফিকেশন চালু করো';
+  }
+}
+updateStatusUI();
+
+notifBtn.addEventListener('click', async () => {
+  localStorage.setItem('routine_dayTime', dayTimeInput.value);
+  localStorage.setItem('routine_nightTime', nightTimeInput.value);
+  if(!('Notification' in window)){
+    notifStatus.textContent = 'এই ব্রাউজারে নোটিফিকেশন সাপোর্ট নাই';
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if(perm === 'granted'){
+    localStorage.setItem('routine_notif_enabled', 'yes');
+    localStorage.removeItem('routine_lastFired_day');
+    localStorage.removeItem('routine_lastFired_night');
+  } else {
+    localStorage.setItem('routine_notif_enabled', 'no');
+  }
+  updateStatusUI();
+});
+
+function todaysSubjects(){
+  const now = new Date();
+  const row = schedule.find(r => r.d === now.getDate() && now.getMonth() === 8);
+  if(!row) return null;
+  return row;
+}
+
+function fireNotification(title, body){
+  if(swRegistration){
+    swRegistration.active && swRegistration.active.postMessage({type:'SHOW_NOTIFICATION', title, body});
+    swRegistration.showNotification ? swRegistration.showNotification(title, {body, icon:'./icon-192.png'}) : null;
+  } else if(Notification.permission === 'granted'){
+    new Notification(title, {body, icon:'./icon-192.png'});
+  }
+}
+
+function checkNotifTimes(){
+  if(localStorage.getItem('routine_notif_enabled') !== 'yes') return;
+  if(Notification.permission !== 'granted') return;
+  const now = new Date();
+  const hhmm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const todayKey = now.toDateString();
+  const row = todaysSubjects();
+
+  if(hhmm === dayTimeInput.value && localStorage.getItem('routine_lastFired_day') !== todayKey){
+    const subj = row ? (row.examBanner ? `এক্সাম: ${row.examBanner.subj}` : row.day) : 'পড়ার সময়';
+    fireNotification('☀️ দিনের পড়া শুরু করো', subj);
+    localStorage.setItem('routine_lastFired_day', todayKey);
+  }
+  if(hhmm === nightTimeInput.value && localStorage.getItem('routine_lastFired_night') !== todayKey){
+    const subj = row ? (row.examNight ? `এক্সাম: ${row.examNight.subj}` : row.night) : 'পড়ার সময়';
+    fireNotification('🌙 রাতের পড়া শুরু করো', subj);
+    localStorage.setItem('routine_lastFired_night', todayKey);
+  }
+}
+setInterval(checkNotifTimes, 15000);
+checkNotifTimes();
+</script>
+
+</body>
+</html>
